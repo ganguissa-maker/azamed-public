@@ -1,7 +1,7 @@
-// src/components/layout/Layout.jsx — SITE PUBLIC
+// src/components/layout/Layout.jsx — avec onglet Médecins
 import { useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Menu, X, Pill, TestTube2, Building2, Newspaper, MapPin, Mail, User, LogOut, Smartphone, ChevronDown } from 'lucide-react';
+import { Search, Menu, X, Pill, TestTube2, Building2, Newspaper, MapPin, Mail, User, LogOut, Smartphone, ChevronDown, Stethoscope } from 'lucide-react';
 import useUserStore from '../../store/userStore';
 
 const STRUCTURES_URL = import.meta.env.VITE_STRUCTURES_URL || 'http://localhost:5174';
@@ -13,6 +13,7 @@ const navLinks = [
   { label:'Pharmacies',   to:'/pharmacies',   icon:<Pill size={15}/> },
   { label:'Laboratoires', to:'/laboratoires', icon:<TestTube2 size={15}/> },
   { label:'Hôpitaux',     to:'/hopitaux',     icon:<Building2 size={15}/> },
+  { label:'Médecins',     to:'/medecins',     icon:<Stethoscope size={15}/> },
   { label:'Actualités',   to:'/actualites',   icon:<Newspaper size={15}/> },
   { label:'Carte',        to:'/carte',        icon:<MapPin size={15}/> },
 ];
@@ -31,7 +32,6 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-sm">AZ</span>
@@ -43,11 +43,10 @@ function Navbar() {
             <span className="font-extrabold text-lg text-primary-700 sm:hidden">AZAMED</span>
           </Link>
 
-          {/* Liens desktop */}
-          <div className="hidden md:flex items-center gap-0.5">
+          <div className="hidden lg:flex items-center gap-0.5">
             {navLinks.map((l) => (
               <Link key={l.to} to={l.to}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                   pathname.startsWith(l.to) ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
                 }`}>
                 {l.icon} {l.label}
@@ -55,7 +54,6 @@ function Navbar() {
             ))}
           </div>
 
-          {/* Actions droite */}
           <div className="flex items-center gap-2">
             <button onClick={() => navigate('/recherche')}
               className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-xl text-sm text-gray-500 transition-colors">
@@ -63,13 +61,13 @@ function Navbar() {
               <span className="hidden sm:block">Rechercher...</span>
             </button>
 
-            {/* Compte utilisateur */}
             {isAuthenticated ? (
               <div className="relative">
                 <button onClick={() => setUserMenu(!userMenu)}
                   className="hidden sm:flex items-center gap-2 px-3 py-2 bg-primary-50 text-primary-700 rounded-xl text-sm font-medium hover:bg-primary-100 transition-colors">
                   <User size={15}/>
                   <span className="max-w-[100px] truncate">{user?.profil?.prenom || 'Mon compte'}</span>
+                  {!user?.isVerified && <span className="w-2 h-2 bg-orange-400 rounded-full" title="En attente de vérification"/>}
                   <ChevronDown size={13}/>
                 </button>
                 {userMenu && (
@@ -78,8 +76,8 @@ function Navbar() {
                       <p className="font-semibold text-sm text-gray-900">{user?.profil?.prenom} {user?.profil?.nom}</p>
                       <p className="text-xs text-gray-400 truncate">{user?.email}</p>
                       {user?.isVerified
-                        ? <span className="text-xs text-green-600 font-semibold">✓ Compte vérifié</span>
-                        : <span className="text-xs text-orange-500 font-semibold">⏳ En attente de vérification</span>}
+                        ? <p className="text-xs text-green-600 font-semibold mt-0.5">✓ Compte vérifié</p>
+                        : <p className="text-xs text-orange-500 font-semibold mt-0.5">⏳ En attente de vérification</p>}
                     </div>
                     <Link to="/mon-compte" onClick={() => setUserMenu(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
@@ -94,27 +92,24 @@ function Navbar() {
               </div>
             ) : (
               <div className="hidden sm:flex items-center gap-2">
-                <Link to="/connexion"
-                  className="text-sm font-medium text-primary-600 hover:text-primary-700 px-3 py-2 rounded-lg hover:bg-primary-50 transition-colors">
+                <Link to="/connexion" className="text-sm font-medium text-primary-600 hover:text-primary-700 px-3 py-2 rounded-lg hover:bg-primary-50 transition-colors">
                   Connexion
                 </Link>
-                <Link to="/inscription"
-                  className="text-sm font-medium bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 transition-colors">
+                <Link to="/inscription" className="text-sm font-medium bg-primary-600 text-white px-3 py-2 rounded-lg hover:bg-primary-700 transition-colors">
                   S'inscrire
                 </Link>
               </div>
             )}
 
-            <button onClick={() => setOpen(!open)} className="md:hidden p-2 text-gray-500 hover:text-primary-600 rounded-lg">
+            <button onClick={() => setOpen(!open)} className="lg:hidden p-2 text-gray-500 hover:text-primary-600 rounded-lg">
               {open ? <X size={22}/> : <Menu size={22}/>}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Menu mobile */}
       {open && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1">
+        <div className="lg:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1">
           {navLinks.map((l) => (
             <Link key={l.to} to={l.to} onClick={() => setOpen(false)}
               className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
@@ -162,8 +157,6 @@ function Footer() {
     <footer className="bg-gray-900 text-gray-300 mt-16">
       <div className="max-w-7xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 mb-8">
-
-          {/* Logo + contact */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
@@ -181,7 +174,6 @@ function Footer() {
             </a>
           </div>
 
-          {/* Navigation */}
           <div>
             <h4 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Navigation</h4>
             <ul className="space-y-2 text-sm">
@@ -195,7 +187,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Mon compte */}
           <div>
             <h4 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Mon compte</h4>
             <ul className="space-y-2 text-sm">
@@ -211,7 +202,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Application mobile */}
           <div>
             <h4 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
               <Smartphone size={14}/> Application mobile
@@ -219,23 +209,19 @@ function Footer() {
             <p className="text-xs text-gray-400 mb-3">Disponible sur Android et iOS</p>
             <div className="space-y-2">
               <a href={PLAYSTORE_URL} target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl px-3 py-2.5 transition-colors">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-white rounded flex items-center justify-center text-xs font-bold text-green-600">▶</div>
-                  <div>
-                    <p className="text-xs text-gray-400 leading-none">Télécharger sur</p>
-                    <p className="text-sm font-semibold text-white leading-tight">Google Play</p>
-                  </div>
+                className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl px-3 py-2.5 transition-colors">
+                <div className="w-6 h-6 bg-white rounded flex items-center justify-center text-xs font-bold text-green-600">▶</div>
+                <div>
+                  <p className="text-xs text-gray-400 leading-none">Télécharger sur</p>
+                  <p className="text-sm font-semibold text-white leading-tight">Google Play</p>
                 </div>
               </a>
               <a href={APPSTORE_URL} target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl px-3 py-2.5 transition-colors">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-white rounded flex items-center justify-center text-xs font-bold text-gray-800"></div>
-                  <div>
-                    <p className="text-xs text-gray-400 leading-none">Télécharger sur</p>
-                    <p className="text-sm font-semibold text-white leading-tight">App Store</p>
-                  </div>
+                className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl px-3 py-2.5 transition-colors">
+                <div className="w-6 h-6 bg-white rounded flex items-center justify-center text-xs font-bold text-gray-800"></div>
+                <div>
+                  <p className="text-xs text-gray-400 leading-none">Télécharger sur</p>
+                  <p className="text-sm font-semibold text-white leading-tight">App Store</p>
                 </div>
               </a>
             </div>

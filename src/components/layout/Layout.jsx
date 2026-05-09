@@ -1,7 +1,10 @@
-// src/components/layout/Layout.jsx — avec onglet Médecins
+// src/components/layout/Layout.jsx — avec lien "Établissements"
 import { useState } from 'react';
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Menu, X, Pill, TestTube2, Building2, Newspaper, MapPin, Mail, User, LogOut, Smartphone, ChevronDown, Stethoscope } from 'lucide-react';
+import {
+  Search, Menu, X, Pill, TestTube2, Building2, Newspaper,
+  MapPin, Mail, User, LogOut, Smartphone, ChevronDown, Stethoscope, Grid,
+} from 'lucide-react';
 import useUserStore from '../../store/userStore';
 
 const STRUCTURES_URL = import.meta.env.VITE_STRUCTURES_URL || 'http://localhost:5174';
@@ -10,12 +13,13 @@ const PLAYSTORE_URL  = 'https://play.google.com/store/apps/details?id=cm.azamed.
 const APPSTORE_URL   = 'https://apps.apple.com/app/azamed/id000000000';
 
 const navLinks = [
-  { label:'Pharmacies',   to:'/pharmacies',   icon:<Pill size={15}/> },
-  { label:'Laboratoires', to:'/laboratoires', icon:<TestTube2 size={15}/> },
-  { label:'Hôpitaux',     to:'/hopitaux',     icon:<Building2 size={15}/> },
-  { label:'Médecins',     to:'/medecins',     icon:<Stethoscope size={15}/> },
-  { label:'Actualités',   to:'/actualites',   icon:<Newspaper size={15}/> },
-  { label:'Carte',        to:'/carte',        icon:<MapPin size={15}/> },
+  { label:'Établissements', to:'/etablissements', icon:<Grid size={15}/>         },
+  { label:'Pharmacies',     to:'/pharmacies',     icon:<Pill size={15}/>          },
+  { label:'Laboratoires',   to:'/laboratoires',   icon:<TestTube2 size={15}/>     },
+  { label:'Hôpitaux',       to:'/hopitaux',       icon:<Building2 size={15}/>     },
+  { label:'Médecins',       to:'/medecins',       icon:<Stethoscope size={15}/>   },
+  { label:'Actualités',     to:'/actualites',     icon:<Newspaper size={15}/>     },
+  { label:'Carte',          to:'/carte',          icon:<MapPin size={15}/>        },
 ];
 
 function Navbar() {
@@ -31,7 +35,7 @@ function Navbar() {
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-
+          {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-sm">AZ</span>
@@ -43,17 +47,21 @@ function Navbar() {
             <span className="font-extrabold text-lg text-primary-700 sm:hidden">AZAMED</span>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-0.5">
+          {/* Nav desktop — scroll horizontal sur petits écrans */}
+          <div className="hidden lg:flex items-center gap-0.5 overflow-x-auto">
             {navLinks.map((l) => (
               <Link key={l.to} to={l.to}
-                className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  pathname.startsWith(l.to) ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                  pathname.startsWith(l.to)
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
                 }`}>
                 {l.icon} {l.label}
               </Link>
             ))}
           </div>
 
+          {/* Actions droite */}
           <div className="flex items-center gap-2">
             <button onClick={() => navigate('/recherche')}
               className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-xl text-sm text-gray-500 transition-colors">
@@ -67,7 +75,7 @@ function Navbar() {
                   className="hidden sm:flex items-center gap-2 px-3 py-2 bg-primary-50 text-primary-700 rounded-xl text-sm font-medium hover:bg-primary-100 transition-colors">
                   <User size={15}/>
                   <span className="max-w-[100px] truncate">{user?.profil?.prenom || 'Mon compte'}</span>
-                  {!user?.isVerified && <span className="w-2 h-2 bg-orange-400 rounded-full" title="En attente de vérification"/>}
+                  {!user?.isVerified && <span className="w-2 h-2 bg-orange-400 rounded-full"/>}
                   <ChevronDown size={13}/>
                 </button>
                 {userMenu && (
@@ -77,7 +85,7 @@ function Navbar() {
                       <p className="text-xs text-gray-400 truncate">{user?.email}</p>
                       {user?.isVerified
                         ? <p className="text-xs text-green-600 font-semibold mt-0.5">✓ Compte vérifié</p>
-                        : <p className="text-xs text-orange-500 font-semibold mt-0.5">⏳ En attente de vérification</p>}
+                        : <p className="text-xs text-orange-500 font-semibold mt-0.5">⏳ En attente</p>}
                     </div>
                     <Link to="/mon-compte" onClick={() => setUserMenu(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
@@ -100,7 +108,6 @@ function Navbar() {
                 </Link>
               </div>
             )}
-
             <button onClick={() => setOpen(!open)} className="lg:hidden p-2 text-gray-500 hover:text-primary-600 rounded-lg">
               {open ? <X size={22}/> : <Menu size={22}/>}
             </button>
@@ -108,8 +115,9 @@ function Navbar() {
         </div>
       </div>
 
+      {/* Menu mobile */}
       {open && (
-        <div className="lg:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1">
+        <div className="lg:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1 max-h-[80vh] overflow-y-auto">
           {navLinks.map((l) => (
             <Link key={l.to} to={l.to} onClick={() => setOpen(false)}
               className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
@@ -157,6 +165,7 @@ function Footer() {
     <footer className="bg-gray-900 text-gray-300 mt-16">
       <div className="max-w-7xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 mb-8">
+          {/* Logo + contact */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
@@ -168,14 +177,14 @@ function Footer() {
               Annuaire santé du Cameroun. Accès gratuit pour le grand public.
             </p>
             <a href={`mailto:${CONTACT_EMAIL}`}
-              className="flex items-center gap-2 text-sm text-primary-300 hover:text-primary-200 transition-colors group">
-              <Mail size={14} className="shrink-0"/>
-              <span className="group-hover:underline">{CONTACT_EMAIL}</span>
+              className="flex items-center gap-2 text-sm text-primary-300 hover:text-primary-200 transition-colors">
+              <Mail size={14} className="shrink-0"/>{CONTACT_EMAIL}
             </a>
           </div>
 
+          {/* Navigation */}
           <div>
-            <h4 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Navigation</h4>
+            <h4 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Établissements</h4>
             <ul className="space-y-2 text-sm">
               {navLinks.map((l) => (
                 <li key={l.to}>
@@ -187,21 +196,18 @@ function Footer() {
             </ul>
           </div>
 
+          {/* Mon compte */}
           <div>
             <h4 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">Mon compte</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/inscription" className="hover:text-primary-400 transition-colors">Créer un compte</Link></li>
-              <li><Link to="/connexion"   className="hover:text-primary-400 transition-colors">Se connecter</Link></li>
-              <li><Link to="/mon-compte"  className="hover:text-primary-400 transition-colors">Mon profil</Link></li>
-              <li>
-                <a href={STRUCTURES_URL} target="_blank" rel="noreferrer"
-                  className="hover:text-primary-400 transition-colors">
-                  Espace établissements →
-                </a>
-              </li>
+              <li><Link to="/inscription"    className="hover:text-primary-400 transition-colors">Créer un compte</Link></li>
+              <li><Link to="/connexion"      className="hover:text-primary-400 transition-colors">Se connecter</Link></li>
+              <li><Link to="/mon-compte"     className="hover:text-primary-400 transition-colors">Mon profil</Link></li>
+              <li><a href={STRUCTURES_URL} target="_blank" rel="noreferrer" className="hover:text-primary-400 transition-colors">Espace établissements →</a></li>
             </ul>
           </div>
 
+          {/* App mobile */}
           <div>
             <h4 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
               <Smartphone size={14}/> Application mobile

@@ -49,7 +49,7 @@ export default function MonComptePage() {
                 : ' La vérification est généralement effectuée sous 24-48h.'}
             </p>
             <p className="text-orange-600 text-xs mt-2">
-              Pour accélérer : <a href="mailto:contactazamed@gmail.com" className="font-bold underline">contactazamed@gmail.com</a>
+              Pour accélérer : <a href="mailto:contactazamed98@gmail.com" className="font-bold underline">contactazamed98@gmail.com</a>
             </p>
           </div>
         </div>

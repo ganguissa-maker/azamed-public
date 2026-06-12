@@ -8,7 +8,7 @@ import {
 import useUserStore from '../../store/userStore';
 
 const STRUCTURES_URL = import.meta.env.VITE_STRUCTURES_URL || 'http://localhost:5174';
-const CONTACT_EMAIL  = 'contactazamed@gmail.com';
+const CONTACT_EMAIL  = 'contactazamed98@gmail.com';
 const PLAYSTORE_URL  = 'https://play.google.com/store/apps/details?id=cm.azamed.app';
 const APPSTORE_URL   = 'https://apps.apple.com/app/azamed/id000000000';
 

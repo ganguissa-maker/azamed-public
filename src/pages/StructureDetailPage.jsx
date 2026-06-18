@@ -1,8 +1,11 @@
-// src/pages/StructureDetailPage.jsx — Fiche détail établissement
+// src/pages/StructureDetailPage.jsx — Avec publications/actualités
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { MapPin, Phone, MessageCircle, Clock, CheckCircle, Pill, TestTube2, Building2, ChevronLeft, Search } from 'lucide-react';
+import {
+  MapPin, Phone, MessageCircle, Clock, CheckCircle,
+  Pill, TestTube2, Building2, ChevronLeft, Search, Newspaper,
+} from 'lucide-react';
 import api from '../utils/api';
 
 const TYPE_LABELS = {
@@ -19,6 +22,14 @@ const TYPE_COLORS = {
 
 const JOURS_LABELS = { lundi:'Lundi', mardi:'Mardi', mercredi:'Mercredi', jeudi:'Jeudi', vendredi:'Vendredi', samedi:'Samedi', dimanche:'Dimanche' };
 const JOURS_KEYS   = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+
+const TYPE_POST_LABELS = {
+  NOUVEAU_SERVICE:'Nouveau service', PROMOTION:'Promotion',
+  DISPONIBILITE_MEDICAMENT:'Médicament dispo', NOUVEL_EXAMEN:'Nouvel examen',
+  CAMPAGNE_DEPISTAGE:'Campagne dépistage', HORAIRES_MODIFIES:'Horaires modifiés',
+  EVENEMENT_MEDICAL:'Événement médical', RECRUTEMENT:'Recrutement',
+  MESSAGE_INSTITUTIONNEL:'Message officiel', AUTRE:'Actualité',
+};
 
 function HorairesDisplay({ horaires, heureOuverture, heureFermeture }) {
   if (!horaires && !heureOuverture) return null;
@@ -112,6 +123,7 @@ export default function StructureDetailPage() {
   const meds     = structure.pharmacieMedicaments || [];
   const examens  = structure.laboExamens          || [];
   const services = structure.hopitalServices      || [];
+  const posts    = structure.posts                || [];
 
   const medsFiltered = medSearch
     ? meds.filter((pm) =>
@@ -298,7 +310,40 @@ export default function StructureDetailPage() {
         </div>
       )}
 
-      {meds.length===0 && examens.length===0 && services.length===0 && (
+      {/* ✅ Publications / Actualités */}
+      {posts.length > 0 && (
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor:couleur+'20' }}>
+              <Newspaper size={15} style={{ color:couleur }}/>
+            </div>
+            <h2 className="font-bold text-gray-900">Actualités ({posts.length})</h2>
+          </div>
+          <div className="space-y-3">
+            {posts.map((post) => (
+              <div key={post.id} className="border border-gray-100 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                    {TYPE_POST_LABELS[post.typePost] || post.typePost}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {new Date(post.createdAt).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{post.contenu}</p>
+                {post.mediaUrl && (
+                  post.mediaUrl.match(/\.(mp4|webm)$/i)
+                    ? <video src={post.mediaUrl} controls className="mt-3 max-h-64 w-full rounded-xl"/>
+                    : <img src={post.mediaUrl} alt="" className="mt-3 max-h-64 rounded-xl object-cover cursor-pointer"
+                        onClick={() => window.open(post.mediaUrl, '_blank')}/>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {meds.length===0 && examens.length===0 && services.length===0 && posts.length===0 && (
         <div className="bg-white rounded-2xl p-8 border border-gray-100 text-center">
           <p className="text-3xl mb-3">🏥</p>
           <p className="text-gray-400 text-sm">Cet établissement n'a pas encore renseigné ses services.</p>

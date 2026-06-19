@@ -22,12 +22,15 @@ const STATUT_CONFIG = {
 
 // ── Modal proposition ─────────────────────────────────────────
 function ModalProposer({ consultation, onClose, onConfirm, loading }) {
-  const [lieu, setLieu]   = useState('');
-  const [date, setDate]   = useState('');
-  const [heure, setHeure] = useState('');
+  const [lieu, setLieu]                       = useState('');
+  const [date, setDate]                       = useState('');
+  const [heure, setHeure]                     = useState('');
+  const [nomCabinet, setNomCabinet]           = useState('');
+  const [quartierCabinet, setQuartierCabinet] = useState('');
 
   // ✅ Tarif calculé automatiquement
   const tarif = lieu ? (TARIFS[consultation.typeConsultation]?.[lieu] ?? null) : null;
+  const cabinetValide = lieu !== 'CABINET' || (nomCabinet.trim().length > 0 && quartierCabinet.trim().length > 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -94,6 +97,25 @@ function ModalProposer({ consultation, onClose, onConfirm, loading }) {
                 <MapPin size={13}/> Quartier patient : {consultation.quartierPatient}
               </div>
             )}
+
+            {/* ✅ Si CABINET : nom de la structure + quartier obligatoires */}
+            {lieu === 'CABINET' && (
+              <div className="mt-3 bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
+                <p className="text-sm font-semibold text-gray-700">📍 Lieu du cabinet</p>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Nom de la structure sanitaire *</label>
+                  <input type="text" value={nomCabinet} onChange={(e) => setNomCabinet(e.target.value)}
+                    placeholder="Ex: Cabinet médical Saint-Joseph"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-400"/>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Quartier *</label>
+                  <input type="text" value={quartierCabinet} onChange={(e) => setQuartierCabinet(e.target.value)}
+                    placeholder="Ex: Bastos, Yaoundé"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-400"/>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Date + Heure */}
@@ -123,8 +145,12 @@ function ModalProposer({ consultation, onClose, onConfirm, loading }) {
             Annuler
           </button>
           <button
-            onClick={() => onConfirm({ lieu, dateProposee:date||null, heureProposee:heure||null })}
-            disabled={!lieu || loading}
+            onClick={() => onConfirm({
+              lieu, dateProposee:date||null, heureProposee:heure||null,
+              nomCabinet: lieu==='CABINET' ? nomCabinet.trim() : null,
+              quartierCabinet: lieu==='CABINET' ? quartierCabinet.trim() : null,
+            })}
+            disabled={!lieu || !cabinetValide || loading}
             className="flex-1 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
             {loading ? 'Envoi...' : <><Send size={15}/> Envoyer la proposition</>}
           </button>
@@ -176,6 +202,8 @@ function ConsultCard({ c, medecinId, onProposer, onRefuser, onTerminer }) {
           <div className="mt-3 bg-purple-50 border border-purple-200 rounded-xl p-3 space-y-1">
             <p className="text-xs font-bold text-purple-600">⏳ En attente de validation du patient</p>
             {c.lieu && <p className="text-sm text-gray-700">📍 {c.lieu==='DOMICILE'?'À domicile':'Cabinet'}</p>}
+            {c.lieu==='CABINET' && c.nomCabinet && <p className="text-sm text-gray-700">🏥 {c.nomCabinet}</p>}
+            {c.lieu==='CABINET' && c.quartierCabinet && <p className="text-sm text-gray-700">🏘️ {c.quartierCabinet}</p>}
             {c.dateProposee && <p className="text-sm text-gray-700">📅 {c.dateProposee}{c.heureProposee?` à ${c.heureProposee}`:''}</p>}
             {c.prix && <p className="text-sm font-bold text-green-700">💰 {Number(c.prix).toLocaleString()} FCFA (tarif AZAMED)</p>}
           </div>
@@ -185,6 +213,8 @@ function ConsultCard({ c, medecinId, onProposer, onRefuser, onTerminer }) {
         {acceptee && (
           <div className="mt-3 bg-green-50 border border-green-200 rounded-xl p-3 space-y-1">
             {c.lieu && <p className="text-sm text-gray-700 font-medium">📍 {c.lieu==='DOMICILE'?'À domicile':'Cabinet'}</p>}
+            {c.lieu==='CABINET' && c.nomCabinet && <p className="text-sm text-gray-700">🏥 {c.nomCabinet}</p>}
+            {c.lieu==='CABINET' && c.quartierCabinet && <p className="text-sm text-gray-700">🏘️ {c.quartierCabinet}</p>}
             {c.dateProposee && <p className="text-sm text-gray-700">📅 {c.dateProposee}{c.heureProposee?` à ${c.heureProposee}`:''}</p>}
             {c.prix && <p className="text-sm font-bold text-green-700">💰 {Number(c.prix).toLocaleString()} FCFA</p>}
           </div>

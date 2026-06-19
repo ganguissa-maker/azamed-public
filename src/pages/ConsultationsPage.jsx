@@ -56,9 +56,15 @@ function ConsultCard({ c, onValider, onRefuser }) {
                 {c.medecinPrenom && <p className="font-semibold text-sm text-purple-800">Dr. {c.medecinPrenom} {c.medecinNom||''}</p>}
                 {c.medecinSpecialite && <p className="text-xs text-purple-600 mt-0.5">🩺 {c.medecinSpecialite}</p>}
                 {c.lieu && (
-                  <p className="text-sm text-gray-700 mt-1 font-medium">
-                    📍 {c.lieu==='DOMICILE' ? 'À votre domicile' : 'Cabinet du médecin'}
-                  </p>
+                 <p className="text-sm text-gray-700 mt-1 font-medium">
+                  📍 {c.lieu==='DOMICILE' ? 'À votre domicile' : 'Au cabinet'}
+                 </p>
+                )}
+                {c.lieu === 'CABINET' && c.nomCabinet && (
+                 <p className="text-sm text-gray-700">🏥 {c.nomCabinet}</p>
+                )}
+                {c.lieu === 'CABINET' && c.quartierCabinet && (
+                 <p className="text-sm text-gray-700">🏘️ Quartier : {c.quartierCabinet}</p>
                 )}
                 {c.dateProposee && (
                   <p className="text-sm text-gray-700 mt-0.5">
@@ -88,7 +94,17 @@ function ConsultCard({ c, onValider, onRefuser }) {
               <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-1">
                 {c.medecinPrenom && <p className="font-semibold text-green-800">Dr. {c.medecinPrenom} {c.medecinNom||''}</p>}
                 {c.medecinSpecialite && <p className="text-xs text-green-600">🩺 {c.medecinSpecialite}</p>}
-                {c.lieu && <p className="text-sm text-gray-700 font-medium">📍 {c.lieu==='DOMICILE'?'À votre domicile':'Cabinet du médecin'}</p>}
+                {c.lieu && (
+                 <p className="text-sm text-gray-700 mt-1 font-medium">
+                 📍 {c.lieu==='DOMICILE' ? 'À votre domicile' : 'Au cabinet'}
+                 </p>
+                )}
+                {c.lieu === 'CABINET' && c.nomCabinet && (
+                 <p className="text-sm text-gray-700">🏥 {c.nomCabinet}</p>
+                )}
+                {c.lieu === 'CABINET' && c.quartierCabinet && (
+                  <p className="text-sm text-gray-700">🏘️ Quartier : {c.quartierCabinet}</p>
+                )}
                 {c.dateProposee && <p className="text-sm text-gray-700">📅 {c.dateProposee}{c.heureProposee?` à ${c.heureProposee}`:''}</p>}
                 {c.prix && <p className="text-sm font-bold text-green-700">💰 {Number(c.prix).toLocaleString()} FCFA</p>}
               </div>

@@ -258,9 +258,9 @@ export default function TableauDeBordMedecinPage() {
   });
 
   const { mutate: proposer, isPending: proposing } = useMutation({
-    // ✅ On n'envoie PAS de prix — le backend calcule automatiquement
-    mutationFn: ({ id, lieu, dateProposee, heureProposee }) =>
-      api.put(`/consultations/${id}/accepter`, { lieu, dateProposee, heureProposee }),
+    // ✅ Le prix n'est jamais envoyé — calculé automatiquement côté serveur
+    mutationFn: ({ id, lieu, dateProposee, heureProposee, nomCabinet, quartierCabinet }) =>
+      api.put(`/consultations/${id}/accepter`, { lieu, dateProposee, heureProposee, nomCabinet, quartierCabinet }),
     onSuccess: () => {
       qc.invalidateQueries(['consult-medecin-dash']);
       setModal(null);
@@ -298,8 +298,8 @@ export default function TableauDeBordMedecinPage() {
       {modal && (
         <ModalProposer consultation={modal} loading={proposing}
           onClose={() => setModal(null)}
-          onConfirm={({ lieu, dateProposee, heureProposee }) =>
-            proposer({ id:modal.id, lieu, dateProposee, heureProposee })}
+          onConfirm={({ lieu, dateProposee, heureProposee, nomCabinet, quartierCabinet }) =>
+            proposer({ id:modal.id, lieu, dateProposee, heureProposee, nomCabinet, quartierCabinet })}
         />
       )}
 

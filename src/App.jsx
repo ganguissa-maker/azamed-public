@@ -358,10 +358,13 @@ function Footer() {
 }
 
 function AppInit({ children }) {
-  const { hydrate } = useAuthStore();
-  useEffect(() => { hydrate(); }, []);
-  return children;
-}
+    const { hydrate, refreshUser, isAuthenticated } = useAuthStore();
+    useEffect(() => { hydrate(); }, []);
+    useEffect(() => {
+      if (isAuthenticated) refreshUser();
+    }, [isAuthenticated]);
+    return children;
+  }
 
 export default function App() {
   return (

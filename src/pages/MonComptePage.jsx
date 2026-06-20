@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import api from '../utils/api';
+import { useState, useEffect } from 'react';
 
 function ActionCard({ icon, title, subtitle, to, onClick, badge, color = 'primary' }) {
   const colors = {
@@ -238,6 +239,15 @@ function EspaceMedecin({ user, onLogout }) {
 
 export default function MonComptePage() {
   const { user, isAuthenticated, logout } = useAuthStore();
+  const refreshUser = useAuthStore((s) => s.refreshUser);
+
+   useEffect(() => {
+     if (isAuthenticated) {
+       refreshUser();                              // au montage de la page
+       const interval = setInterval(refreshUser, 30000); // puis toutes les 30s
+       return () => clearInterval(interval);
+     }
+   }, [isAuthenticated]);
   const navigate = useNavigate();
 
   const handleLogout = () => {

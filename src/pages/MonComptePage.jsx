@@ -1,5 +1,5 @@
 // src/pages/MonComptePage.jsx — Espace compte (patient + médecin)
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import api from '../utils/api';
-import { useState, useEffect } from 'react';
 
 function ActionCard({ icon, title, subtitle, to, onClick, badge, color = 'primary' }) {
   const colors = {
@@ -239,7 +238,6 @@ function EspaceMedecin({ user, onLogout }) {
 
 export default function MonComptePage() {
   const { user, isAuthenticated, logout } = useAuthStore();
-  const navigate = useNavigate();
   const refreshUser = useAuthStore((s) => s.refreshUser);
 
    useEffect(() => {
@@ -249,6 +247,7 @@ export default function MonComptePage() {
        return () => clearInterval(interval);
      }
    }, [isAuthenticated]);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     if (window.confirm('Voulez-vous vous déconnecter ?')) {

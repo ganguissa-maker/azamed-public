@@ -239,6 +239,7 @@ function EspaceMedecin({ user, onLogout }) {
 
 export default function MonComptePage() {
   const { user, isAuthenticated, logout } = useAuthStore();
+  const navigate = useNavigate();
   const refreshUser = useAuthStore((s) => s.refreshUser);
 
    useEffect(() => {
@@ -248,7 +249,6 @@ export default function MonComptePage() {
        return () => clearInterval(interval);
      }
    }, [isAuthenticated]);
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     if (window.confirm('Voulez-vous vous déconnecter ?')) {

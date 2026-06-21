@@ -23,6 +23,10 @@ import ResetPasswordPage        from './pages/ResetPasswordPage';
 import MonComptePage            from './pages/MonComptePage';
 import ConsultationsPage        from './pages/ConsultationsPage';
 import TableauDeBordMedecinPage from './pages/TableauDeBordMedecinPage';
+import InscriptionDeleguePage   from './pages/InscriptionDeleguePage';
+import ConnexionDeleguePage     from './pages/ConnexionDeleguePage';
+import MonCompteDeleguePage     from './pages/MonCompteDeleguePage';
+
 
 const qc = new QueryClient({ defaultOptions:{ queries:{ staleTime:5*60*1000, retry:1 } } });
 
@@ -123,6 +127,7 @@ function Header() {
   // Pages sans header (auth pages)
   const authPages = ['/connexion','/inscription','/reset-password'];
   if (authPages.includes(location.pathname)) return null;
+  const authPages = ['/connexion','/inscription','/reset-password','/delegue/inscription','/delegue/connexion'];
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
@@ -180,6 +185,10 @@ function Header() {
                 <Link to="/inscription"
                   className="text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 px-4 py-1.5 rounded-xl transition-colors flex items-center gap-1.5">
                   <Plus size={14}/> Créer un compte
+                </Link>
+                <Link to="/delegue/connexion"
+                 className="block text-center text-xs text-gray-500 hover:text-gray-300 mt-3">
+                 Vous etes delegue medical ? Acceder a mon espace
                 </Link>
               </>
             )}
@@ -389,6 +398,9 @@ export default function App() {
                 <Route path="/mon-compte"               element={<MonComptePage/>}/>
                 <Route path="/mes-consultations"        element={<ConsultationsPage/>}/>
                 <Route path="/tableau-de-bord-medecin"  element={<TableauDeBordMedecinPage/>}/>
+                <Route path="/delegue/inscription"  element={<InscriptionDeleguePage/>}/>
+                <Route path="/delegue/connexion"    element={<ConnexionDeleguePage/>}/>
+                <Route path="/delegue/mon-compte"   element={<MonCompteDeleguePage/>}/>
                 <Route path="*" element={
                   <div className="text-center py-24">
                     <p className="text-4xl mb-4">🏥</p>

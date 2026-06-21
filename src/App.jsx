@@ -125,9 +125,8 @@ function Header() {
   };
 
   // Pages sans header (auth pages)
-  const authPages = ['/connexion','/inscription','/reset-password'];
-  if (authPages.includes(location.pathname)) return null;
   const authPages = ['/connexion','/inscription','/reset-password','/delegue/inscription','/delegue/connexion'];
+   if (authPages.includes(location.pathname)) return null;
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">

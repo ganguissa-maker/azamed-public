@@ -1,5 +1,5 @@
 // src/pages/InscriptionPage.jsx — Création de compte (web)
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, CheckCircle } from 'lucide-react';
 import api from '../utils/api';
@@ -39,14 +39,11 @@ function PwdStrength({ pwd }) {
 export default function InscriptionPage() {
   const navigate  = useNavigate();
   const { login } = useAuthStore();
-  const [step, setStep]     = useState(1); // 1=type, 2=infos, 3=code
+  const [step, setStep]     = useState(1); // 1=type, 2=infos
   const [mode, setMode]     = useState('');
   const [loading, setLoad]  = useState(false);
   const [error, setError]   = useState('');
   const [showPwd, setShowPwd] = useState(false);
-  const [code, setCode]       = useState('');
-  const [resending, setResending] = useState(false);
-  const [cooldown, setCooldown]   = useState(0);
   const [form, setForm] = useState({
     prenom:'', nom:'', email:'', password:'',
     ville:'', telephone:'', specialite:'', numeroOrdre:'', lieuExercice:'',
@@ -55,13 +52,7 @@ export default function InscriptionPage() {
   const set = (f) => (e) => { setForm((p) => ({...p, [f]: e.target.value})); setError(''); };
   const setVal = (f, v) => { setForm((p) => ({...p, [f]: v})); setError(''); };
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
-  }, [cooldown]);
-
-  // ✅ Étape 2 → envoie le formulaire, reçoit un code par email
+  // Étape 2 → crée le compte directement et connecte l'utilisateur
   const handleRegister = async () => {
     if (!form.prenom.trim() || !form.nom.trim()) { setError('Prénom et nom requis.'); return; }
     if (!form.email.includes('@'))               { setError('Email invalide.'); return; }
@@ -70,7 +61,7 @@ export default function InscriptionPage() {
 
     setLoad(true); setError('');
     try {
-      await api.post('/users/register', {
+      const { data } = await api.post('/users/register', {
         email:        form.email.trim().toLowerCase(),
         password:     form.password,
         prenom:       form.prenom.trim(),
@@ -82,42 +73,12 @@ export default function InscriptionPage() {
         lieuExercice: form.lieuExercice.trim(),
         typeCompte:   mode === 'medecin' ? 'MEDECIN' : 'PATIENT',
       });
-      setStep(3);
-      setCooldown(30);
+      login(data.user, data.token);
+      navigate('/mon-compte');
     } catch (err) {
       setError(err.response?.data?.error || "Erreur lors de l'inscription");
     } finally {
       setLoad(false);
-    }
-  };
-
-  // ✅ Étape 3 → valide le code, crée le compte réellement
-  const handleVerifyCode = async () => {
-    if (!code.trim() || code.trim().length < 6) { setError('Entrez le code à 6 chiffres reçu par email.'); return; }
-    setLoad(true); setError('');
-    try {
-      const { data } = await api.post('/users/verify-email', {
-        email: form.email.trim().toLowerCase(),
-        code:  code.trim(),
-      });
-      login(data.user, data.token);
-      navigate('/mon-compte');
-    } catch (err) {
-      setError(err.response?.data?.error || 'Code invalide ou expiré');
-    } finally {
-      setLoad(false);
-    }
-  };
-
-  const handleResendCode = async () => {
-    setResending(true); setError('');
-    try {
-      await api.post('/users/resend-code', { email: form.email.trim().toLowerCase() });
-      setCooldown(30);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Erreur lors du renvoi');
-    } finally {
-      setResending(false);
     }
   };
 
@@ -267,45 +228,9 @@ export default function InscriptionPage() {
                 </button>
                 <button onClick={handleRegister} disabled={loading}
                   className="flex-1 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors">
-                  {loading ? 'Envoi du code...' : '📧 Recevoir le code'}
+                  {loading ? 'Création...' : '✓ Créer mon compte'}
                 </button>
               </div>
-            </div>
-          )}
-
-          {/* ✅ Étape 3 : Vérification email */}
-          {step === 3 && (
-            <div className="space-y-4 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-primary-100 flex items-center justify-center mx-auto">
-                <span className="text-3xl">📧</span>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">
-                  Un code à 6 chiffres a été envoyé à<br/>
-                  <span className="font-bold text-gray-900">{form.email}</span>
-                </p>
-              </div>
-
-              <div className="text-left">
-                <label className="block text-xs font-semibold text-gray-600 mb-1 text-center">Code de vérification</label>
-                <input value={code} onChange={(e) => { setCode(e.target.value); setError(''); }}
-                  placeholder="000000" maxLength={6} inputMode="numeric"
-                  className="w-full px-3 py-3 border border-gray-200 rounded-xl text-center text-2xl font-black tracking-[0.3em] focus:outline-none focus:border-primary-400"/>
-              </div>
-
-              <button onClick={handleVerifyCode} disabled={loading}
-                className="w-full bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl text-sm transition-colors">
-                {loading ? 'Vérification...' : '✓ Valider et créer mon compte'}
-              </button>
-
-              <button onClick={handleResendCode} disabled={resending || cooldown > 0}
-                className="text-sm font-semibold text-primary-600 hover:underline disabled:text-gray-400 disabled:no-underline">
-                {cooldown > 0 ? `Renvoyer le code (${cooldown}s)` : resending ? 'Envoi...' : 'Renvoyer le code'}
-              </button>
-
-              <button onClick={() => setStep(2)} className="block w-full text-sm text-gray-400 hover:text-gray-600">
-                ← Modifier mes informations
-              </button>
             </div>
           )}
         </div>
